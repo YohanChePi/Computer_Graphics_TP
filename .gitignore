@@ -1,0 +1,12 @@
+#compressed files
+*.zip
+*.gz
+
+#build files
+build/
+
+#editor files
+.vscode/
+
+#other
+.DS_Store
