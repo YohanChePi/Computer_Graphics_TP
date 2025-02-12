@@ -199,11 +199,11 @@ int main() {
   }
 
     // Creation d'un buffer des couleurs
-    GLuint colorBufferID;
-  glGenBuffers(1, &colorBufferID);
+    GLuint colorUnitBufferID;
+  glGenBuffers(1, &colorUnitBufferID);
 
-  // Definition de vertexBufferID comme le buffer courant
-  glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
+  // Definition de colorUnitBufferID comme le buffer courant
+  glBindBuffer(GL_ARRAY_BUFFER, colorUnitBufferID);
 
   // Copie des couleurs sur la carte graphique
   glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(vec3), colors.data(), GL_STATIC_DRAW);
@@ -249,8 +249,12 @@ int main() {
   // Todo 3 : Creation des buffers avec le chargement d'un maillage
   //==================================================
 
-  Mesh m = Mesh("../models/blob.off");
+  Mesh m = Mesh("../models/triceratops.off");
+  m.normalize();
+  m.colorize();
 
+
+  //== Creation du buffer des positions des sommets ==
   GLuint vertexMeshBufferID;
   glGenBuffers(1, &vertexMeshBufferID);
   cout << "vertexMeshBufferID = " << vertexMeshBufferID << endl;
@@ -269,7 +273,7 @@ int main() {
   glEnableVertexAttribArray(vertexMeshPositionID);
 
 
-  // Creation du buffer des indices Mesh
+  //== Creation du buffer des indices Mesh ==
   GLuint indiceMeshBufferID;
   glGenBuffers(1, &indiceMeshBufferID);
 
@@ -279,12 +283,49 @@ int main() {
   // transmission des indices dans ce buffer
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, m.faces.size() * sizeof(uint), m.faces.data(), GL_STATIC_DRAW);
 
+
+  //== Creation d'un nouveau buffer pour les couleurs des sommets==
+  GLuint colorMeshBufferID;
+  glGenBuffers(1, &colorMeshBufferID);
+
+  // Definition de colorMeshBufferID comme le buffer courant
+  glBindBuffer(GL_ARRAY_BUFFER, colorMeshBufferID);
+
+  // Copie des couleurs sur la carte graphique
+  glBufferData(GL_ARRAY_BUFFER, m.colors.size() * sizeof(vec3), m.colors.data(), GL_STATIC_DRAW);
+
+  // Obtention de l'ID l'attribut "in_color" dans programID
+  GLuint vertexMeshColorID = glGetAttribLocation(programID, "in_color");
+  printf("vertexMeshColorID = %d\n", vertexMeshColorID);
+
+  // on indique a OpenGL comment lire les donnees et on autorise leur lecture
+  glVertexAttribPointer(vertexMeshColorID, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+  glEnableVertexAttribArray(vertexMeshColorID);
+
+
+  //== Creation du buffer des normales des sommets ==
+  GLuint normalMeshBufferID;
+  glGenBuffers(1, &normalMeshBufferID);
+  cout << "normalMeshBufferID = " << normalMeshBufferID << endl;
+
+  // Definition de normalMeshBufferID comme le buffer courant
+  glBindBuffer(GL_ARRAY_BUFFER, normalMeshBufferID);
+
+  // Copie des donnees sur la carte graphique (dans normalMeshBufferID)
+  glBufferData(GL_ARRAY_BUFFER, m.normals.size() * sizeof(vec3), m.normals.data(), GL_STATIC_DRAW);
+
+  // Obtention de l'ID de l'attribut "in_normal" dans programID
+  GLuint vertexMeshNormalID = glGetAttribLocation(programID, "in_normal");
+
+  // On autorise et indique a OpenGL comment lire les donnees
+  glVertexAttribPointer(vertexMeshNormalID, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+  glEnableVertexAttribArray(vertexMeshNormalID);
+
+ 
+  
   //================================================================================================
 
   glBindVertexArray(0); // Désactiver le VAO
-
-
-
 
   //-------------------------------------------------
   // Initialisation des matrices MVP
@@ -304,8 +345,13 @@ int main() {
   GLuint MmatrixID = glGetUniformLocation(programID, "ModelMatrix");
   cout << "MmatrixID = " << MmatrixID << endl;
 
+  GLuint modeID = glGetUniformLocation(programID, "mode");
+  cout << "modeID = " << modeID << endl;
 
+  GLuint timeID = glGetUniformLocation(programID, "cur_time");
+  cout << "timeID = " << timeID << endl;
 
+  
 
 
   //==================================================
@@ -351,7 +397,7 @@ int main() {
     glUniformMatrix4fv(PmatrixID, 1, GL_FALSE, value_ptr(projection_matrix));
     glUniformMatrix4fv(VmatrixID, 1, GL_FALSE, value_ptr(view_matrix));
     glUniformMatrix4fv(MmatrixID, 1, GL_FALSE, value_ptr(model_matrix));
-
+    glUniform1f(timeID, cur_time);
 
     glBindVertexArray(vaoID); // On active le VAO
 
@@ -364,8 +410,28 @@ int main() {
     // i.e: positions et couleurs
     //glDrawArrays(GL_TRIANGLES, 0, vertices.size());
     //glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    glDrawElements(GL_TRIANGLES, m.faces.size(), GL_UNSIGNED_INT, 0);
+    //glDrawElements(GL_TRIANGLES, m.faces.size(), GL_UNSIGNED_INT, 0);
 
+    //== Decoupage de la fenetre en 4 ==
+    int width, height;
+    glfwGetWindowSize(myWindow, &width, &height);
+
+    glViewport(0, 0, width / 2, height / 2);
+    glDrawElements(GL_TRIANGLES, m.faces.size(), GL_UNSIGNED_INT, 0);
+    glUniform1i(modeID, 0); //color
+
+    glViewport(width / 2, 0, width / 2, height / 2);
+    glDrawElements(GL_TRIANGLES, m.faces.size(), GL_UNSIGNED_INT, 0);
+    glUniform1i(modeID, 1); //normale
+
+    glViewport(0, height / 2, width / 2, height / 2);
+    glDrawElements(GL_TRIANGLES, m.faces.size(), GL_UNSIGNED_INT, 0);
+    glUniform1i(modeID, 2);//position
+
+    glViewport(width / 2, height / 2, width / 2, height / 2);
+    glDrawElements(GL_TRIANGLES, m.faces.size(), GL_UNSIGNED_INT, 0);
+    glUniform1i(modeID, 3);//profondeur depuis la camera
+    
     glBindVertexArray(0); // On désactive le VAO  
 
     // Echange des zones de dessin buffers
@@ -402,10 +468,13 @@ int main() {
   // Todo : Libérer TOUS les buffers que vous avez cree
   //==================================================
 
-  glDeleteBuffers(1, &colorBufferID);
+  glDeleteBuffers(1, &colorUnitBufferID);
   glDeleteBuffers(1, &indiceBufferID);
   glDeleteBuffers(1, &vertexMeshBufferID);
   glDeleteBuffers(1, &indiceMeshBufferID);
+  glDeleteBuffers(1, &colorMeshBufferID);
+  glDeleteBuffers(1, &normalMeshBufferID);
+
 
   cout << "Fin du programme..." << endl;
     

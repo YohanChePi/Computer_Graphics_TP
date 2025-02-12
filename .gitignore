@@ -6,7 +6,7 @@
 build/
 
 #editor files
-.vscode/
+.vscode/*
 
 #other
 .DS_Store
