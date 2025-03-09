@@ -5,7 +5,7 @@
 ![texteExplicatif](./shadingTP4.png "shadingTP4")
 
 ## Introduction
-L’objectif du TP est d’explorer différentes techniques d’ombrage (shading en anglais) un objet 3D.
+L’objectif du TP est d’explorer différentes techniques d’ombrage (shading en anglais) d'un objet 3D.
 
 La base de code qui vous est fournie reprend les éléments de la dernière séance. Si ce n'est pas déjà fait, placez cette base de code dans votre dossier ```TP3D``` contenant les TPs.
 

@@ -95,10 +95,10 @@ int main() {
 
   //-------------------------------------------------
   // Initialisation du maillage
-  // string file_name("../models/blob2.off");
+  string file_name("../models/blob2.off");
   // string file_name("../models/armadillo.off");
-  string file_name("../models/buddha.off");
-  // string file_name("../models/dragon.off");
+  //string file_name("../models/buddha.off");
+  //string file_name("../models/dragon.off");
   // string file_name("../models/triceratops.off");
   // string file_name("../models/cube.off");
   // string file_name("../models/bunny.off");
