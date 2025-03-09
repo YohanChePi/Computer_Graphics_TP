@@ -94,9 +94,13 @@ int main() {
   GLuint programID = LoadShaders( "../shader/vertex.glsl", "../shader/fragment.glsl" );
   cout << "programID = " << programID << endl;
 
+  GLuint programID2 = LoadShaders( "../shader/vertex2.glsl", "../shader/fragment2.glsl" );
+  cout << "programID2 = " << programID2 << endl;
 
   //-------------------------------------------------
   // Initialisation du maillage
+  //string file_name("../doc/double_torus.off");
+  
   string file_name("../models/blob2.off");
   // string file_name("../models/armadillo.off");
   //string file_name("../models/buddha.off");
@@ -221,6 +225,16 @@ int main() {
   GLuint MmatrixID = glGetUniformLocation(programID, "ModelMatrix");
   cout << "MmatrixID = " << MmatrixID << endl;
 
+  GLuint PmatrixID2 = glGetUniformLocation(programID2, "ProjectionMatrix");
+  cout << "PmatrixID2 = " << PmatrixID2 << endl;
+
+  GLuint VmatrixID2 = glGetUniformLocation(programID2, "ViewMatrix");
+  cout << "VmatrixID2 = " << VmatrixID2 << endl;
+
+  GLuint MmatrixID2 = glGetUniformLocation(programID2, "ModelMatrix");
+  cout << "MmatrixID2 = " << MmatrixID2 << endl;
+
+
   // Definition de la position de la lumiere
   vec3 lightPos = vec3(1.0, 1.0, 0.0);
   GLuint lightID = glGetUniformLocation(programID, "lightPos");
@@ -281,6 +295,16 @@ int main() {
     glUniformMatrix4fv(VmatrixID, 1, GL_FALSE, value_ptr(view_matrix));
     glUniformMatrix4fv(MmatrixID, 1, GL_FALSE, value_ptr(model_matrix));
 
+    glUseProgram(programID2);
+
+    // Transmission des matrices au vertex shader du second programme
+    glUniformMatrix4fv(PmatrixID2, 1, GL_FALSE, value_ptr(projection_matrix));
+    glUniformMatrix4fv(VmatrixID2, 1, GL_FALSE, value_ptr(view_matrix));
+    glUniformMatrix4fv(MmatrixID2, 1, GL_FALSE, value_ptr(model_matrix));
+
+    // Definition de programID comme le shader courant
+    glUseProgram(programID);
+
     // Transmission de la position de la lumiere au vertex shader
     lightPos = getMousePosition(myWindow);
     glUniform3fv(lightID, 1, value_ptr(lightPos));
@@ -290,15 +314,29 @@ int main() {
     
     // set viewport, enable VAO and draw 
     glViewport(0,0,w,h);
+
     glBindVertexArray(vaoID);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  
     glDrawElements(GL_TRIANGLES,m.faces.size(),GL_UNSIGNED_INT,0);
     glBindVertexArray(0);
+    
+    /*
+    // Definition de programID2 comme le shader courant
+    glUseProgram(programID2);
+
+    glBindVertexArray(vaoID);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glDrawElements(GL_TRIANGLES,m.faces.size(),GL_UNSIGNED_INT,0);
+    glBindVertexArray(0);
+    */
 
     // Echange des zones de dessin buffers
     glfwSwapBuffers( myWindow);
 
     // Traitement des évènements fenêtre, clavier, etc...
     glfwPollEvents();
+
+
       
     cout << "Temps ecoule (s) : " << cur_time << "\r";
     cout << "Position de la lumiere : " << lightPos.x << " " << lightPos.y << " " << lightPos.z << "\r";

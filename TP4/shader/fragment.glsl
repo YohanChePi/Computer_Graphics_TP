@@ -26,8 +26,6 @@ float rho_a = 0.09; // lumière ambiante faible
 float rho_d = 1.;
 float rho_s = 0.2;
 
-float s = brillance_shader;
-
 // Fonction appellee pour chaque fragment
 void main() {
   // Calcul de l'equation de Phong
@@ -37,9 +35,18 @@ void main() {
 
   vec3 phong_ambiant = rho_a * La;
   vec3 phong_diffus = rho_d * Ld * max(-dot(vec3(normalInWorldSpace), lightDir), 0.);
-  vec3 phong_specular = rho_s * Ls * pow(max(dot(viewDir, reflectDir), 0.0), s);
+  vec3 phong_specular = rho_s * Ls * pow(max(dot(viewDir, reflectDir), 0.0), brillance_shader);
+
 
   // Affectation de la couleur du fragment
-  frag_color = vec4(phong_ambiant + phong_diffus + phong_specular, 1.0);
-}
+  //frag_color = vec4(phong_ambiant + phong_diffus + phong_specular, 1.0);
 
+  //Phong shading
+  vec3 color = phong_ambiant + phong_diffus + phong_specular;
+
+  //Toon shading
+  //float levels = 15.0; // Number of color levels
+  //color = floor(color * levels) / levels; // Reduce the number of possible colors
+
+  frag_color = vec4(color, 1.0);
+}
