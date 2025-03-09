@@ -7,10 +7,10 @@ in vec3 in_color;
 in vec3 in_normal;
 
 // Donnees de sortie
-out vec4 my_color;
-out vec4 posInWorldSpace;
-out vec4 normalInWorldSpace;
-out vec4 cameraPosInWorldSpace;
+flat out vec4 my_color;
+flat out vec4 posInWorldSpace;
+flat out vec4 normalInWorldSpace;
+flat out vec4 cameraPosInWorldSpace;
 
 // Parametres
 uniform mat4 ModelMatrix;

@@ -1,10 +1,10 @@
 // Version d'OpenGL
 #version 330
 
-in vec4 my_color;
-in vec4 posInWorldSpace;
-in vec4 normalInWorldSpace;
-in vec4 cameraPosInWorldSpace;
+flat in vec4 my_color;
+flat in vec4 posInWorldSpace;
+flat in vec4 normalInWorldSpace;
+flat in vec4 cameraPosInWorldSpace;
 
 out vec4 frag_color;
 
