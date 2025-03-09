@@ -8,6 +8,9 @@ in vec3 in_normal;
 
 // Donnees de sortie
 out vec4 my_color;
+out vec4 posInWorldSpace;
+out vec4 normalInWorldSpace;
+out vec4 cameraPosInWorldSpace;
 
 // Parametres
 uniform mat4 ModelMatrix;
@@ -26,7 +29,6 @@ float rho_s = 0.2;
 float s = 1.;
 
 vec3 lightPosInWorldSpace = vec3(1.,1.,1.);
-vec4 cameraPosInWorldSpace = inverse(ViewMatrix) * vec4(0.0, 0.0, 0.0, 1.0);
 
 // Fonction appellee pour chaque sommet
 void main() {
@@ -35,9 +37,12 @@ void main() {
   gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(in_position, 1.0);
   vec4 posInObjectSpace = vec4( in_position, 1.0);
 
-  vec4 posInWorldSpace = ModelMatrix * posInObjectSpace;
-  vec4 normalInWorldSpace = transpose(inverse( ModelMatrix))* vec4( in_normal, 0.);
+  posInWorldSpace = ModelMatrix * posInObjectSpace;
+  normalInWorldSpace = transpose(inverse( ModelMatrix))* vec4( in_normal, 0.);
+  my_color = vec4(0., 0., 1., 1.0);
+  cameraPosInWorldSpace = inverse(ViewMatrix) * vec4(0.0, 0.0, 0.0, 1.0);
 
+  /*
   // my_color = vec4(in_normal*0.5+0.5,1.0);
   //my_color = posInObjectSpace;
   vec3 phong_ambiant = rho_a * La;
@@ -48,5 +53,7 @@ void main() {
   vec3 phong_diffus = rho_d * Ld * max(-1*dot(vec3(normalInWorldSpace), lightDir), 0.);
   vec3 phong_specular = rho_s * Ls * pow(max(dot(reflectDir,viewDir), 0.), s);
 
-  my_color = vec4(phong_ambiant + phong_diffus + phong_specular, 1.0); // +
+  my_color = vec4(phong_ambiant + phong_diffus + phong_specular, 1.0);
+  */
+
 }
