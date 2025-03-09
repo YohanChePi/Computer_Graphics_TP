@@ -7,15 +7,25 @@ in vec3 in_color;
 in vec3 in_normal;
 
 // Donnees de sortie
+out vec4 my_color;
+out vec4 posInWorldSpace;
+out vec4 normalInWorldSpace;
+out vec4 cameraPosInWorldSpace;
+out vec4 lightPosInWorldSpace;
+out float brillance_shader;
+/*
 flat out vec4 my_color;
 flat out vec4 posInWorldSpace;
 flat out vec4 normalInWorldSpace;
 flat out vec4 cameraPosInWorldSpace;
+*/
 
 // Parametres
 uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjectionMatrix;
+uniform vec3 lightPos;
+uniform float brillance;
 
 // Parametre de Phong
 vec3 La = vec3(0., 0., 1.); //lumière ambiante bleu
@@ -25,10 +35,6 @@ vec3 Ls = vec3(1.0, 1.0, 1.0); //éclairage blanc
 float rho_a = 0.09; //lumière ambiante faible
 float rho_d = 1.;
 float rho_s = 0.2;
-
-float s = 1.;
-
-vec3 lightPosInWorldSpace = vec3(1.,1.,1.);
 
 // Fonction appellee pour chaque sommet
 void main() {
@@ -41,6 +47,8 @@ void main() {
   normalInWorldSpace = transpose(inverse( ModelMatrix))* vec4( in_normal, 0.);
   my_color = vec4(0., 0., 1., 1.0);
   cameraPosInWorldSpace = inverse(ViewMatrix) * vec4(0.0, 0.0, 0.0, 1.0);
+  lightPosInWorldSpace = vec4(lightPos, 1.0);
+  brillance_shader = brillance;
 
   /*
   // my_color = vec4(in_normal*0.5+0.5,1.0);

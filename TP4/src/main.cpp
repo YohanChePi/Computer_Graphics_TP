@@ -18,7 +18,9 @@
 using namespace glm;
 using namespace std;
 
-void view_control( GLFWwindow* myWindow, mat4& view_matrix, float dx);
+void view_control( GLFWwindow* myWindow, mat4& view_matrix, float dx, float& brillance);
+
+vec3 getMousePosition(GLFWwindow *myWindow);
 
 int main() {
   GLFWwindow* myWindow;
@@ -219,6 +221,15 @@ int main() {
   GLuint MmatrixID = glGetUniformLocation(programID, "ModelMatrix");
   cout << "MmatrixID = " << MmatrixID << endl;
 
+  // Definition de la position de la lumiere
+  vec3 lightPos = vec3(1.0, 1.0, 0.0);
+  GLuint lightID = glGetUniformLocation(programID, "lightPos");
+  cout << "lightID = " << lightID << endl;
+
+  // Definition de la brillance
+  float brillance = 1.;
+  GLuint brillanceID = glGetUniformLocation(programID, "brillance");
+  cout << "brillanceID = " << brillanceID << endl;
 
 
 
@@ -255,7 +266,7 @@ int main() {
     snprintf(title,100,"SI_INFO4 - %2.0f FPS",1.0/ delta_time);
     glfwSetWindowTitle( myWindow, title);
 
-    view_control( myWindow, view_matrix, speed * delta_time);
+    view_control( myWindow, view_matrix, speed * delta_time, brillance);
 
 
     //==================================================
@@ -269,6 +280,13 @@ int main() {
     glUniformMatrix4fv(PmatrixID, 1, GL_FALSE, value_ptr(projection_matrix));
     glUniformMatrix4fv(VmatrixID, 1, GL_FALSE, value_ptr(view_matrix));
     glUniformMatrix4fv(MmatrixID, 1, GL_FALSE, value_ptr(model_matrix));
+
+    // Transmission de la position de la lumiere au vertex shader
+    lightPos = getMousePosition(myWindow);
+    glUniform3fv(lightID, 1, value_ptr(lightPos));
+
+    // Transmission de la brillance au vertex shader
+    glUniform1f(brillanceID, brillance);
     
     // set viewport, enable VAO and draw 
     glViewport(0,0,w,h);
@@ -276,7 +294,6 @@ int main() {
     glDrawElements(GL_TRIANGLES,m.faces.size(),GL_UNSIGNED_INT,0);
     glBindVertexArray(0);
 
-      
     // Echange des zones de dessin buffers
     glfwSwapBuffers( myWindow);
 
@@ -284,6 +301,7 @@ int main() {
     glfwPollEvents();
       
     cout << "Temps ecoule (s) : " << cur_time << "\r";
+    cout << "Position de la lumiere : " << lightPos.x << " " << lightPos.y << " " << lightPos.z << "\r";
     cout.flush();
     
     
@@ -317,7 +335,7 @@ int main() {
   return EXIT_SUCCESS;
 }
 
-void view_control(   GLFWwindow* myWindow, mat4& view_matrix, float dx) {
+void view_control(   GLFWwindow* myWindow, mat4& view_matrix, float dx, float& brillance) {
   if (glfwGetKey( myWindow, GLFW_KEY_UP ) == GLFW_PRESS) {
     vec4 axis = vec4(1.0, 0.0, 0.0, 0.0);
     axis = inverse(view_matrix) * axis;
@@ -389,4 +407,25 @@ void view_control(   GLFWwindow* myWindow, mat4& view_matrix, float dx) {
     axis = inverse(view_matrix) * axis;
     view_matrix = translate(view_matrix, vec3(axis));
   }
+
+  if (glfwGetKey( myWindow, GLFW_KEY_R ) == GLFW_PRESS) {
+    brillance += 0.1;
+  }
+
+  if (glfwGetKey( myWindow, GLFW_KEY_F ) == GLFW_PRESS) {
+    brillance -= 0.1;
+    brillance = std::max(0.0f, brillance);
+  }
+  
+
+}
+
+vec3 getMousePosition(GLFWwindow* window) {
+  double xpos, ypos;
+  glfwGetCursorPos(window, &xpos, &ypos);
+  int width, height;
+  glfwGetWindowSize(window, &width, &height);
+  float x = (2.0f * xpos) / width - 1.0f;
+  float y = 1.0f - (2.0f * ypos) / height;
+  return vec3(-x, -y, 0);
 }

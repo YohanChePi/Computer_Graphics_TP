@@ -1,10 +1,19 @@
 // Version d'OpenGL
 #version 330
 
+in vec4 my_color;
+in vec4 posInWorldSpace;
+in vec4 normalInWorldSpace;
+in vec4 cameraPosInWorldSpace;
+in vec4 lightPosInWorldSpace;
+in float brillance_shader;
+
+/*
 flat in vec4 my_color;
 flat in vec4 posInWorldSpace;
 flat in vec4 normalInWorldSpace;
 flat in vec4 cameraPosInWorldSpace;
+*/
 
 out vec4 frag_color;
 
@@ -17,14 +26,12 @@ float rho_a = 0.09; // lumière ambiante faible
 float rho_d = 1.;
 float rho_s = 0.2;
 
-float s = 1.;
-
-vec3 lightPosInWorldSpace = vec3(5., 5., 5.);
+float s = brillance_shader;
 
 // Fonction appellee pour chaque fragment
 void main() {
   // Calcul de l'equation de Phong
-  vec3 lightDir = normalize(lightPosInWorldSpace - vec3(posInWorldSpace));
+  vec3 lightDir = normalize(vec3(lightPosInWorldSpace) - vec3(posInWorldSpace));
   vec3 viewDir = normalize(vec3(cameraPosInWorldSpace) - vec3(posInWorldSpace));
   vec3 reflectDir = reflect(lightDir, vec3(normalInWorldSpace));
 
