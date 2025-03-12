@@ -99,8 +99,8 @@ int main() {
 
   
   Mesh m;
-  create_sphere(&m);
-  // create_cube(&m);
+  //create_sphere(&m);
+  create_cube(&m);
 
 
   
@@ -214,7 +214,33 @@ int main() {
   // TODO : créer la texture 
   // TODO : recuperer l'identifiant de "texSampler" dans le fragment shader 
   //==================================================
+  int width, height, nrChannels;
+  float* data;
+  //load_texture("../textures/chessMulti.jpg", width, height, nrChannels, data);
+  //load_texture("../textures/crate.jpg", width, height, nrChannels, data);
+  load_texture("../textures/dice_texture_uv_map.jpg", width, height, nrChannels, data);
 
+
+  GLuint textureID;
+  glGenTextures(1, &textureID);
+  glBindTexture(GL_TEXTURE_2D, textureID);
+  cout << "textureID = " << textureID << endl;
+
+  // Parametres de la texture
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  // Envoie de la texture sur la carte graphique
+  glTexImage2D(GL_TEXTURE_2D, 0,
+               GL_RGBA32F,
+               width,
+               height, 0,
+               GL_RGBA, GL_FLOAT,
+               (const GLvoid *)data);
+
+  GLuint texSamplerID = glGetUniformLocation(programID, "texSampler");
 
   //==================================================
   //=========== Debut des choses serieuses ===========
@@ -265,8 +291,10 @@ int main() {
     // Note: la texture est déjà sur GPU, il suffit de lier la texture
     // a une unité, puis de spécifier cette unité au shader 
     //==================================================
-    
-    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glUniform1i(texSamplerID, 0);
+
     // set viewport, enable VAO and draw 
     glViewport(0,0,w,h);
     glBindVertexArray(vaoID);
@@ -304,6 +332,9 @@ int main() {
   glDeleteBuffers(1, &normalBufferID);
   glDeleteBuffers(1, &texcoordBufferID);
   glDeleteBuffers(1, &indiceBufferID);
+
+  // Liberation des textures
+  glDeleteTextures(1, &textureID);
 
   cout << "Fin du programme..." << endl;
     
@@ -376,8 +407,82 @@ void create_cube(Mesh* output)
     output->normals.push_back(vec3(0,  1, 0));
                         
     // TODO : definir les coordonnées de texture des sommets du cube
+    /* Version longue manuelle*/
+    /*
+    output->texCoord.push_back(vec2(0, 0));
+    output->texCoord.push_back(vec2(1, 0));
+    output->texCoord.push_back(vec2(1, 1));
+    output->texCoord.push_back(vec2(0, 1));
 
+    output->texCoord.push_back(vec2(0, 0));
+    output->texCoord.push_back(vec2(1, 0));
+    output->texCoord.push_back(vec2(1, 1));
+    output->texCoord.push_back(vec2(0, 1));
 
+    output->texCoord.push_back(vec2(0, 0));
+    output->texCoord.push_back(vec2(1, 0));
+    output->texCoord.push_back(vec2(1, 1));
+    output->texCoord.push_back(vec2(0, 1));
+
+    output->texCoord.push_back(vec2(0, 0));
+    output->texCoord.push_back(vec2(1, 0));
+    output->texCoord.push_back(vec2(1, 1));
+    output->texCoord.push_back(vec2(0, 1));
+
+    output->texCoord.push_back(vec2(0, 0));
+    output->texCoord.push_back(vec2(1, 0));
+    output->texCoord.push_back(vec2(1, 1));
+    output->texCoord.push_back(vec2(0, 1));
+
+    output->texCoord.push_back(vec2(0, 0));
+    output->texCoord.push_back(vec2(1, 0));
+    output->texCoord.push_back(vec2(1, 1));
+    output->texCoord.push_back(vec2(0, 1));
+    */
+
+    /* Version courte boucle */
+    /*
+    for (int i = 0; i < 6; i++) {
+        output->texCoord.push_back(vec2(0, 0));
+        output->texCoord.push_back(vec2(1, 0));
+        output->texCoord.push_back(vec2(1, 1));
+        output->texCoord.push_back(vec2(0, 1));
+    }
+    */
+    
+
+    //Coordonnées pour le dé
+    
+    output->texCoord.push_back(vec2(2./4., 1./3.));
+    output->texCoord.push_back(vec2(3./4., 1./3.));
+    output->texCoord.push_back(vec2(3./4., 2./3.));
+    output->texCoord.push_back(vec2(2./4., 2./3.));
+
+    output->texCoord.push_back(vec2(1./4., 1./3.));
+    output->texCoord.push_back(vec2(2./4., 1./3.));
+    output->texCoord.push_back(vec2(2./4., 2./3.));
+    output->texCoord.push_back(vec2(1./4., 2./3.));
+
+    output->texCoord.push_back(vec2(0./4., 1./3.));
+    output->texCoord.push_back(vec2(1./4., 1./3.));
+    output->texCoord.push_back(vec2(1./4., 2./3.));
+    output->texCoord.push_back(vec2(0./4., 2./3.));
+
+    output->texCoord.push_back(vec2(3./4., 1./3.));
+    output->texCoord.push_back(vec2(4./4., 1./3.));
+    output->texCoord.push_back(vec2(4./4., 2./3.));
+    output->texCoord.push_back(vec2(3./4., 2./3.));
+
+    output->texCoord.push_back(vec2(1./4., 1./3.));
+    output->texCoord.push_back(vec2(2./4., 1./3.));
+    output->texCoord.push_back(vec2(2./4., 2./3.));
+    output->texCoord.push_back(vec2(1./4., 2./3.));
+
+    output->texCoord.push_back(vec2(2./4., 2./3.));
+    output->texCoord.push_back(vec2(3./4., 2./3.));
+    output->texCoord.push_back(vec2(3./4., 3./3.));
+    output->texCoord.push_back(vec2(2./4., 3./3.));
+    
 
     output->faces.push_back(0);
     output->faces.push_back(2);
@@ -464,12 +569,12 @@ void create_sphere(Mesh* output) {
   for(int i = 0; i < Nu; i++) {
     for(int j = 0; j < Nv - 1; j++) {
       output->faces.push_back( i * Nv + j);
-      output->faces.push_back((i+1)%Nu * Nv + j);
       output->faces.push_back( i * Nv + j+1);
-      
+      output->faces.push_back((i + 1) % Nu * Nv + j);
+
       output->faces.push_back( i * Nv + j+1);
-      output->faces.push_back((i+1)%Nu * Nv + j);
       output->faces.push_back((i+1)%Nu * Nv + j + 1);
+      output->faces.push_back((i + 1) % Nu * Nv + j);
     }
   }
 }

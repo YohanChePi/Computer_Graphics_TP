@@ -19,7 +19,8 @@ void main() {
   
   vec3 color = vec3(vert_texCoord.xy, 0.5);
   
-  frag_color = vec4(color, 1.0);
+  //frag_color = vec4(color, 1.0);
   
   // TODO: récupérer la couleur correspondant à ce fragment dans la texture
+  frag_color = texture(texSampler, vert_texCoord);
 }
